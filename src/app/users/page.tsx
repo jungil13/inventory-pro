@@ -17,7 +17,9 @@ import {
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
-  const [currentUser, setCurrentUser] = useState<User>(inventoryStore.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<User | null>(
+    inventoryStore.getCurrentUser()
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [name, setName] = useState("");
@@ -89,15 +91,14 @@ export default function UsersPage() {
       {/* USERS LIST */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {users.map((u) => {
-          const isCurrent = u.id === currentUser.id;
+          const isCurrent = u.id === currentUser?.id;
           return (
             <div
               key={u.id}
-              className={`p-5 rounded-2xl border transition-all ${
-                isCurrent
+              className={`p-5 rounded-2xl border transition-all ${isCurrent
                   ? "bg-blue-50/60 dark:bg-blue-950/30 border-blue-300 dark:border-blue-800 shadow-md"
                   : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
-              }`}
+                }`}
             >
               <div className="flex items-center gap-3 mb-3">
                 <img
@@ -120,13 +121,12 @@ export default function UsersPage() {
 
               <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
                 <span
-                  className={`font-black uppercase text-[10px] px-2.5 py-1 rounded-full ${
-                    u.role === "admin"
+                  className={`font-black uppercase text-[10px] px-2.5 py-1 rounded-full ${u.role === "admin"
                       ? "bg-purple-500/10 text-purple-600 border border-purple-500/20"
                       : u.role === "manager"
-                      ? "bg-blue-500/10 text-blue-600 border border-blue-500/20"
-                      : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                  }`}
+                        ? "bg-blue-500/10 text-blue-600 border border-blue-500/20"
+                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                    }`}
                 >
                   {u.role}
                 </span>
