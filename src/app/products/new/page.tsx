@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { inventoryStore } from "@/lib/storage/inventory-store";
 import { generateRandomBarcode, generateSKU } from "@/lib/utils";
@@ -23,15 +23,13 @@ import {
 
 export default function NewProductPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialBarcode = searchParams.get("barcode") || "";
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
   const [name, setName] = useState("");
   const [sku, setSku] = useState("");
-  const [barcode, setBarcode] = useState(initialBarcode);
+  const [barcode, setBarcode] = useState("");
   const [description, setDescription] = useState("");
   const [brand, setBrand] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -52,7 +50,14 @@ export default function NewProductPage() {
     setCategories(inventoryStore.getCategories());
     setSuppliers(inventoryStore.getSuppliers());
 
-    if (!barcode) {
+    // Read the optional barcode from the browser URL after hydration.
+    // This avoids useSearchParams() causing a Vercel/Next.js prerender error.
+    const params = new URLSearchParams(window.location.search);
+    const urlBarcode = params.get("barcode");
+
+    if (urlBarcode) {
+      setBarcode(urlBarcode);
+    } else {
       setBarcode(generateRandomBarcode());
     }
   }, []);
