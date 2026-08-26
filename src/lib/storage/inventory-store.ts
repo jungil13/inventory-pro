@@ -124,24 +124,30 @@ class InventoryStore {
 
   private async syncToSupabase(table: string, action: 'insert' | 'update' | 'delete', data: any, matchId?: string) {
     try {
-      if (action === 'insert') await supabase.from(table).insert(data);
+      let result;
+      if (action === 'insert') {
+        result = await supabase.from(table).insert(data);
+      }
       if (action === 'update') {
-        // inventory table uses product_id as PK, not id
+        // inventory table uses product_id as PK, not id. Use upsert to handle case where row didn't exist yet.
         if (table === 'inventory') {
-          await supabase.from(table).update(data).match({ product_id: matchId });
+          result = await supabase.from(table).upsert({ product_id: matchId, ...data }, { onConflict: 'product_id' });
         } else {
-          await supabase.from(table).update(data).match({ id: matchId });
+          result = await supabase.from(table).update(data).match({ id: matchId });
         }
       }
       if (action === 'delete') {
         if (table === 'inventory') {
-          await supabase.from(table).delete().match({ product_id: matchId });
+          result = await supabase.from(table).delete().match({ product_id: matchId });
         } else {
-          await supabase.from(table).delete().match({ id: matchId });
+          result = await supabase.from(table).delete().match({ id: matchId });
         }
       }
+      if (result?.error) {
+        console.error(`Supabase sync error on ${table} (${action}):`, result.error);
+      }
     } catch (e) {
-      console.error(`Supabase sync error on ${table}:`, e);
+      console.error(`Supabase sync exception on ${table}:`, e);
     }
   }
 
