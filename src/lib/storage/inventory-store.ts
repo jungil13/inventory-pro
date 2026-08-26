@@ -319,7 +319,7 @@ class InventoryStore {
         reason: "Initial Stock on Creation",
         reference: "INIT-CREATE",
         supplier_id: data.supplier_id,
-        user_id: this.currentUser?.id || null,
+        user_id: this.currentUser?.id || undefined,
         notes: "Product added with initial inventory count",
         created_at: new Date().toISOString(),
       });
@@ -328,7 +328,7 @@ class InventoryStore {
     // Audit log
     this.auditLogs.unshift({
       id: crypto.randomUUID ? crypto.randomUUID() : `a-${Date.now()}`,
-      user_id: this.currentUser?.id || null,
+      user_id: this.currentUser?.id || undefined,
       action: "CREATE_PRODUCT",
       entity_type: "product",
       entity_id: newId,
@@ -380,7 +380,7 @@ class InventoryStore {
     // Audit log
     this.auditLogs.unshift({
       id: crypto.randomUUID ? crypto.randomUUID() : `a-${Date.now()}`,
-      user_id: this.currentUser?.id || null,
+      user_id: this.currentUser?.id || undefined,
       action: "UPDATE_PRODUCT",
       entity_type: "product",
       entity_id: id,
@@ -406,7 +406,7 @@ class InventoryStore {
     // Audit log
     this.auditLogs.unshift({
       id: crypto.randomUUID ? crypto.randomUUID() : `a-${Date.now()}`,
-      user_id: this.currentUser?.id || null,
+      user_id: this.currentUser?.id || undefined,
       action: "DELETE_PRODUCT",
       entity_type: "product",
       entity_id: id,
@@ -453,7 +453,7 @@ class InventoryStore {
       reason: payload.reason || "Supplier Delivery / Stock In",
       reference: payload.reference || "",
       supplier_id: payload.supplier_id || product.supplier_id,
-      user_id: payload.user_id || this.currentUser?.id || null,
+      user_id: payload.user_id || this.currentUser?.id || undefined,
       notes: payload.notes || "",
       created_at: new Date().toISOString(),
     };
@@ -462,7 +462,7 @@ class InventoryStore {
 
     this.auditLogs.unshift({
       id: crypto.randomUUID ? crypto.randomUUID() : `a-${Date.now()}`,
-      user_id: payload.user_id || this.currentUser?.id || null,
+      user_id: payload.user_id || this.currentUser?.id || undefined,
       action: "STOCK_IN",
       entity_type: "inventory",
       entity_id: product.id,
@@ -524,7 +524,7 @@ class InventoryStore {
       reason: payload.reason || "Dispatch / Sale",
       reference: payload.reference || "",
       supplier_id: payload.supplier_id,
-      user_id: payload.user_id || this.currentUser?.id || null,
+      user_id: payload.user_id || this.currentUser?.id || undefined,
       notes: payload.notes || "",
       created_at: new Date().toISOString(),
     };
@@ -533,7 +533,7 @@ class InventoryStore {
 
     this.auditLogs.unshift({
       id: crypto.randomUUID ? crypto.randomUUID() : `a-${Date.now()}`,
-      user_id: payload.user_id || this.currentUser?.id || null,
+      user_id: payload.user_id || this.currentUser?.id || undefined,
       action: "STOCK_OUT",
       entity_type: "inventory",
       entity_id: product.id,
@@ -586,7 +586,7 @@ class InventoryStore {
       previous_quantity: prevQty,
       new_quantity: physical,
       reason: payload.reason || "Physical Cycle Count Adjustment",
-      user_id: payload.user_id || this.currentUser?.id || null,
+      user_id: payload.user_id || this.currentUser?.id || undefined,
       notes: payload.notes || "",
       created_at: new Date().toISOString(),
     };
