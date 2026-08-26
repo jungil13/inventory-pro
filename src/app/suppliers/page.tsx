@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { inventoryStore } from "@/lib/storage/inventory-store";
 import { Supplier } from "@/types/inventory";
 import { soundFx } from "@/lib/audio/sound-fx";
@@ -77,6 +78,7 @@ export default function SuppliersPage() {
         address: address.trim(),
         notes: notes.trim(),
       });
+      toast.success(`Supplier "${name.trim()}" updated successfully!`);
     } else {
       inventoryStore.createSupplier({
         name: name.trim(),
@@ -86,6 +88,7 @@ export default function SuppliersPage() {
         address: address.trim(),
         notes: notes.trim(),
       });
+      toast.success(`Supplier "${name.trim()}" added successfully!`);
     }
     soundFx.playSuccessChime();
     setIsModalOpen(false);
@@ -94,6 +97,7 @@ export default function SuppliersPage() {
   const handleDelete = (id: string, sName: string) => {
     if (confirm(`Are you sure you want to delete supplier "${sName}"?`)) {
       inventoryStore.deleteSupplier(id);
+      toast.success(`Supplier "${sName}" deleted.`);
     }
   };
 

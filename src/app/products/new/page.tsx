@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 import { inventoryStore } from "@/lib/storage/inventory-store";
 import { generateRandomBarcode, generateSKU } from "@/lib/utils";
 import { soundFx } from "@/lib/audio/sound-fx";
@@ -78,6 +79,8 @@ export default function NewProductPage() {
     setError(null);
     setIsSubmitting(true);
 
+    const loadingToastId = toast.loading("Registering product...");
+
     const cost = parseFloat(costPrice) || 0;
     const price = parseFloat(sellingPrice) || 0;
     const minStock = parseInt(minimumStock) || 10;
@@ -109,10 +112,12 @@ export default function NewProductPage() {
 
     if (res.success && res.product) {
       soundFx.playSuccessChime();
+      toast.success("Product registered successfully!", { id: loadingToastId });
       router.push(`/products/${res.product.id}`);
     } else {
       soundFx.playErrorBuzz();
       setError(res.error || "Failed to create product");
+      toast.error(res.error || "Failed to create product", { id: loadingToastId });
     }
   };
 
@@ -432,8 +437,20 @@ export default function NewProductPage() {
             disabled={isSubmitting}
             className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/25 flex items-center gap-2 transition-all hover:scale-[1.02]"
           >
-            <Save className="w-4 h-4" />
-            <span>Save & Register Product</span>
+            {isSubmitting ? (
+              <>
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                <span>Save & Register Product</span>
+              </>
+            )}
           </button>
         </div>
       </form>

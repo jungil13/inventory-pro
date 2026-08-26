@@ -83,7 +83,21 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       // Link Supabase auth user to the users table by email
       const allUsers = inventoryStore.getUsers();
       const profileUser = allUsers.find(u => u.email === session.user.email);
-      if (profileUser) inventoryStore.setCurrentUser(profileUser);
+      if (profileUser) {
+        inventoryStore.setCurrentUser(profileUser);
+      } else {
+        // Fallback: build a minimal user object from auth session
+        const fallbackUser: User = {
+          id: session.user.id,
+          name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+          email: session.user.email || '',
+          role: 'admin' as UserRole,
+          avatar_url: session.user.user_metadata?.avatar_url,
+          created_at: session.user.created_at,
+          updated_at: session.user.updated_at || session.user.created_at,
+        };
+        inventoryStore.setCurrentUser(fallbackUser);
+      }
       setIsHydrated(true);
       updateStats();
       if (pathname === '/login') router.push('/dashboard');
@@ -103,7 +117,20 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         await inventoryStore.initFromSupabase();
         const allUsers = inventoryStore.getUsers();
         const profileUser = allUsers.find(u => u.email === session.user.email);
-        if (profileUser) inventoryStore.setCurrentUser(profileUser);
+        if (profileUser) {
+          inventoryStore.setCurrentUser(profileUser);
+        } else {
+          const fallbackUser: User = {
+            id: session.user.id,
+            name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+            email: session.user.email || '',
+            role: 'admin' as UserRole,
+            avatar_url: session.user.user_metadata?.avatar_url,
+            created_at: session.user.created_at,
+            updated_at: session.user.updated_at || session.user.created_at,
+          };
+          inventoryStore.setCurrentUser(fallbackUser);
+        }
         updateStats();
         if (pathname === '/login') router.push('/dashboard');
       }
@@ -437,34 +464,30 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </button>
 
               {/* User Dropdown */}
-              {isUserMenuOpen && currentUser && (
+              {isUserMenuOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-2 z-50 animate-in fade-in zoom-in-95">
-                  <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
-                    <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
-                      Switch Active User / Role
-                    </span>
-                  </div>
-                  <div className="py-1 space-y-1">
-                    {users.map((u) => (
-                      <button
-                        key={u.id}
-                        onClick={() => handleSwitchUser(u)}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors ${u.id === currentUser.id
-                            ? "bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 font-bold"
-                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                          }`}
-                      >
-                        <div className="flex items-center gap-2 truncate">
-                          <img src={u.avatar_url} alt={u.name} className="w-5 h-5 rounded-full object-cover" />
-                          <span className="truncate">{u.name}</span>
+                  {/* Current User Info */}
+                  <div className="px-3 py-2.5 mb-1">
+                    <div className="flex items-center gap-2.5">
+                      <img
+                        src={currentUser?.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"}
+                        alt={currentUser?.name || "User"}
+                        className="w-8 h-8 rounded-lg object-cover flex-shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+                          {currentUser?.name || "User"}
                         </div>
-                        <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded-sm bg-slate-100 dark:bg-slate-800">
-                          {u.role}
-                        </span>
-                      </button>
-                    ))}
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                          {currentUser?.email || ""}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-2 inline-flex items-center px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 text-[10px] font-bold uppercase tracking-wider">
+                      {currentUser?.role || "admin"}
+                    </div>
                   </div>
-                  <div className="p-2 border-t border-slate-100 dark:border-slate-800">
+                  <div className="p-1 border-t border-slate-100 dark:border-slate-800">
                     <button
                       onClick={handleLogout}
                       className="w-full text-center px-3 py-2 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-900/40 font-bold rounded-lg text-xs transition-colors"

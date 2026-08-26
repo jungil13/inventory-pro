@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, createContext, useContext } from "react";
+import { toast } from "sonner";
 import { soundFx } from "@/lib/audio/sound-fx";
 import { inventoryStore } from "@/lib/storage/inventory-store";
 import { Product } from "@/types/inventory";
@@ -61,11 +62,13 @@ export const ScannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setActiveProduct(product);
       setNotFoundBarcode(null);
       setIsModalOpen(true);
+      toast.success(`Scanned: ${product.name}`, { duration: 2000 });
     } else {
       soundFx.playErrorBuzz();
       setActiveProduct(null);
       setNotFoundBarcode(cleanCode);
       setIsModalOpen(true);
+      toast.error(`Barcode "${cleanCode}" not found in catalog`, { duration: 3000 });
     }
   };
 

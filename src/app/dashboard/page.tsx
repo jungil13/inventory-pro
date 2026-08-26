@@ -77,16 +77,26 @@ export default function DashboardPage() {
     }));
   }, [products]);
 
-  // Movement weekly trend data
-  const movementTrendData = [
-    { day: "Mon", stockIn: 45, stockOut: 20 },
-    { day: "Tue", stockIn: 60, stockOut: 35 },
-    { day: "Wed", stockIn: 30, stockOut: 28 },
-    { day: "Thu", stockIn: 75, stockOut: 45 },
-    { day: "Fri", stockIn: 50, stockOut: 65 },
-    { day: "Sat", stockIn: 90, stockOut: 80 },
-    { day: "Sun (Today)", stockIn: metrics.today_stock_in, stockOut: metrics.today_stock_out },
-  ];
+  // Movement weekly trend data — computed from actual movements (last 7 days)
+  const movementTrendData = React.useMemo(() => {
+    const allMovements = inventoryStore.getMovements(500);
+    const days: { day: string; stockIn: number; stockOut: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const label = i === 0 ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short' });
+      const stockIn = allMovements
+        .filter(m => m.created_at?.startsWith(dateStr) && m.type === 'stock_in')
+        .reduce((sum, m) => sum + m.quantity, 0);
+      const stockOut = allMovements
+        .filter(m => m.created_at?.startsWith(dateStr) && m.type === 'stock_out')
+        .reduce((sum, m) => sum + m.quantity, 0);
+      days.push({ day: label, stockIn, stockOut });
+    }
+    return days;
+  }, [movements]);
+
 
   const lowStockItems = products.filter((p) => (p.quantity ?? 0) <= p.minimum_stock);
 

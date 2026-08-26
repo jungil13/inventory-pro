@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { inventoryStore } from "@/lib/storage/inventory-store";
 import { soundFx } from "@/lib/audio/sound-fx";
 import { Product, Supplier } from "@/types/inventory";
@@ -34,6 +35,7 @@ export default function StockInPage() {
   } | null>(null);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadData = (productId?: string | null) => {
     const prods = inventoryStore.getProducts();
@@ -108,10 +110,9 @@ export default function StockInPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!selectedProduct) return;
-
     setErrorMessage(null);
+    setIsSubmitting(true);
 
     const res = inventoryStore.stockIn({
       product_id: selectedProduct.id,
@@ -123,8 +124,11 @@ export default function StockInPage() {
       notes,
     });
 
+    setIsSubmitting(false);
+
     if (res.success) {
       soundFx.playSuccessChime();
+      toast.success(`+${quantity} ${selectedProduct.unit} added to "${selectedProduct.name}"`);
 
       setSuccessResult({
         prev: res.previousQuantity,
@@ -142,6 +146,7 @@ export default function StockInPage() {
       setReference(`PO-2026-${Date.now().toString().slice(-4)}`);
     } else {
       soundFx.playErrorBuzz();
+      toast.error(res.error || "Stock in failed");
       setErrorMessage(res.error || "Stock in failed");
     }
   };
@@ -458,10 +463,23 @@ export default function StockInPage() {
 
             <button
               type="submit"
-              className="px-7 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-500/25 flex items-center gap-2 transition-all hover:scale-[1.02]"
+              disabled={isSubmitting}
+              className="px-7 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-500/25 flex items-center gap-2 transition-all hover:scale-[1.02]"
             >
-              <ArrowDownToLine className="w-4 h-4" />
-              <span>Confirm Stock In & Record Movement</span>
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                  </svg>
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <ArrowDownToLine className="w-4 h-4" />
+                  <span>Confirm Stock In & Record Movement</span>
+                </>
+              )}
             </button>
           </div>
         </form>

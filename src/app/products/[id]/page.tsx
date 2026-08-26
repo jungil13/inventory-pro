@@ -3,6 +3,7 @@
 import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { inventoryStore } from "@/lib/storage/inventory-store";
 import { formatCurrency, formatDate, formatRelativeTime, getStockStatus } from "@/lib/utils";
 import { soundFx } from "@/lib/audio/sound-fx";
@@ -101,16 +102,18 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
     if (res.success) {
       soundFx.playSuccessChime();
+      toast.success(`"${editName.trim()}" updated successfully!`);
       setIsEditing(false);
     } else {
       soundFx.playErrorBuzz();
-      alert(res.error || "Update failed");
+      toast.error(res.error || "Update failed");
     }
   };
 
   const handleDelete = () => {
     if (confirm(`Are you sure you want to permanently delete "${product.name}"?`)) {
       inventoryStore.deleteProduct(product.id);
+      toast.success(`"${product.name}" deleted.`);
       router.push("/products");
     }
   };

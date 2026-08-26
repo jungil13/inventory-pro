@@ -3,6 +3,7 @@ import "./globals.css";
 import { ScannerProvider } from "@/components/scanner/USBScannerListener";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PwaInstallPrompt } from "@/components/pwa/PwaInstallPrompt";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "InventoryPro - Barcode Inventory Management System",
@@ -46,6 +47,7 @@ export default function RootLayout({
         <ScannerProvider>
           <AppLayout>{children}</AppLayout>
           <PwaInstallPrompt />
+          <Toaster richColors position="top-right" />
         </ScannerProvider>
       </body>
     </html>

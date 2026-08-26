@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { inventoryStore } from "@/lib/storage/inventory-store";
 import { Category } from "@/types/inventory";
 import { soundFx } from "@/lib/audio/sound-fx";
@@ -63,8 +64,10 @@ export default function CategoriesPage() {
     e.preventDefault();
     if (editingId) {
       inventoryStore.updateCategory(editingId, name.trim(), description.trim(), color);
+      toast.success(`Category "${name.trim()}" updated successfully!`);
     } else {
       inventoryStore.createCategory(name.trim(), description.trim(), color);
+      toast.success(`Category "${name.trim()}" created!`);
     }
     soundFx.playSuccessChime();
     setIsModalOpen(false);
@@ -73,6 +76,7 @@ export default function CategoriesPage() {
   const handleDelete = (id: string, cName: string) => {
     if (confirm(`Are you sure you want to delete category "${cName}"?`)) {
       inventoryStore.deleteCategory(id);
+      toast.success(`Category "${cName}" deleted.`);
     }
   };
 

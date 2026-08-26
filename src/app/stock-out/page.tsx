@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { inventoryStore } from "@/lib/storage/inventory-store";
 import { formatCurrency, getStockStatus } from "@/lib/utils";
 import { soundFx } from "@/lib/audio/sound-fx";
@@ -39,6 +40,7 @@ export default function StockOutPage() {
     unit: string;
   } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadData = (productId?: string | null) => {
     const prods = inventoryStore.getProducts();
@@ -100,6 +102,7 @@ export default function StockOutPage() {
     e.preventDefault();
     if (!selectedProduct) return;
     setErrorMessage(null);
+    setIsSubmitting(true);
 
     const res = inventoryStore.stockOut({
       product_id: selectedProduct.id,
@@ -110,8 +113,11 @@ export default function StockOutPage() {
       notes,
     });
 
+    setIsSubmitting(false);
+
     if (res.success) {
       soundFx.playSuccessChime();
+      toast.success(`-${quantity} ${selectedProduct.unit} dispatched from "${selectedProduct.name}"`);
       setSuccessResult({
         prev: res.previousQuantity,
         newQty: res.newQuantity,
@@ -130,6 +136,7 @@ export default function StockOutPage() {
       setReference(`SALES-2026-${Date.now().toString().slice(-4)}`);
     } else {
       soundFx.playErrorBuzz();
+      toast.error(res.error || "Stock out failed");
       setErrorMessage(res.error || "Stock out failed");
     }
   };
@@ -424,11 +431,23 @@ export default function StockOutPage() {
             </button>
             <button
               type="submit"
-              disabled={isNegative}
+              disabled={isNegative || isSubmitting}
               className="px-7 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl shadow-md shadow-rose-500/25 flex items-center gap-2 transition-all hover:scale-[1.02]"
             >
-              <ArrowUpFromLine className="w-4 h-4" />
-              <span>Confirm Stock Out & Record Movement</span>
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                  </svg>
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <ArrowUpFromLine className="w-4 h-4" />
+                  <span>Confirm Stock Out & Record Movement</span>
+                </>
+              )}
             </button>
           </div>
         </form>
