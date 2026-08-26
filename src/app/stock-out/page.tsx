@@ -313,8 +313,19 @@ export default function StockOutPage() {
                     type="number"
                     min="1"
                     required
-                    value={quantity}
-                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                    value={quantity === 0 ? "" : quantity}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "") {
+                        setQuantity(0);
+                      } else {
+                        const parsed = parseInt(val, 10);
+                        setQuantity(isNaN(parsed) ? 0 : Math.max(0, parsed));
+                      }
+                    }}
+                    onBlur={() => {
+                      if (quantity < 1) setQuantity(1);
+                    }}
                     className="flex-1 px-4 py-2 text-center text-xl font-black bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl"
                   />
                   <button

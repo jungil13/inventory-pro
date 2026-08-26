@@ -557,8 +557,19 @@ export const QuickActionModal: React.FC = () => {
                       type="number"
                       min="1"
                       required
-                      value={quantity}
-                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      value={quantity === 0 ? "" : quantity}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "") {
+                          setQuantity(0);
+                        } else {
+                          const parsed = parseInt(val, 10);
+                          setQuantity(isNaN(parsed) ? 0 : Math.max(0, parsed));
+                        }
+                      }}
+                      onBlur={() => {
+                        if (quantity < 1) setQuantity(1);
+                      }}
                       className="flex-1 px-3 py-2 text-center text-lg font-black bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg"
                     />
                     <button
@@ -578,63 +589,86 @@ export const QuickActionModal: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                    Reason / Source
+                  </label>
+                  <select
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg"
+                  >
+                    <option value="Restock / Purchase Order">Restock / Purchase Order</option>
+                    <option value="Customer Return">Customer Return</option>
+                    <option value="Found Inventory">Found Inventory</option>
+                    <option value="Inter-store Transfer In">Inter-store Transfer In</option>
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                      Reason / Source
-                    </label>
-                    <select
-                      value={reason}
-                      onChange={(e) => setReason(e.target.value)}
-                      className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg"
-                    >
-                      <option value="Supplier Delivery">Supplier Delivery</option>
-                      <option value="Restock Batch">Restock Batch</option>
-                      <option value="Customer Return">Customer Return</option>
-                      <option value="Warehouse Transfer In">Warehouse Transfer In</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                      PO Reference
+                      Reference / PO #
                     </label>
                     <input
                       type="text"
-                      placeholder="PO-2026-..."
                       value={reference}
                       onChange={(e) => setReference(e.target.value)}
+                      placeholder="PO-9821"
+                      className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                      Notes
+                    </label>
+                    <input
+                      type="text"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Optional notes"
                       className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg"
                     />
                   </div>
                 </div>
 
-                <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl text-xs flex items-center justify-between text-emerald-800 dark:text-emerald-300">
-                  <span>
-                    New Calculation: <strong>{activeProduct.quantity ?? 0}</strong> + <strong>{quantity}</strong> =
-                  </span>
-                  <span className="font-black text-sm text-emerald-600 dark:text-emerald-400">
-                    {(activeProduct.quantity ?? 0) + quantity} {activeProduct.unit}
-                  </span>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("overview")}
+                    className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm"
+                  >
+                    Confirm Stock In
+                  </button>
                 </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-xs shadow-emerald-500/25 flex items-center justify-center gap-2 transition-colors"
-                >
-                  <PackagePlus className="w-4 h-4" />
-                  Confirm Stock In
-                </button>
               </form>
             )}
 
-            {/* STOCK OUT FORM */}
+            {/* TAB: STOCK OUT */}
             {activeTab === "stock_out" && (
               <form onSubmit={handleStockOut} className="space-y-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Remove Quantity ({activeProduct.unit}) *
-                  </label>
-                  <div className="flex items-center gap-2">
+                <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-600 dark:text-slate-400">Available:</span>
+                    <span className="font-bold text-slate-900 dark:text-white">
+                      {activeProduct.quantity ?? 0} {activeProduct.unit}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((q) => Math.max(1, q - 5))}
+                      className="px-3 py-2 bg-slate-100 dark:bg-slate-800 font-bold rounded-lg hover:bg-slate-200"
+                    >
+                      -5
+                    </button>
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -647,8 +681,19 @@ export const QuickActionModal: React.FC = () => {
                       min="1"
                       max={activeProduct.quantity ?? 0}
                       required
-                      value={quantity}
-                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      value={quantity === 0 ? "" : quantity}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "") {
+                          setQuantity(0);
+                        } else {
+                          const parsed = parseInt(val, 10);
+                          setQuantity(isNaN(parsed) ? 0 : Math.max(0, parsed));
+                        }
+                      }}
+                      onBlur={() => {
+                        if (quantity < 1) setQuantity(1);
+                      }}
                       className="flex-1 px-3 py-2 text-center text-lg font-black bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg"
                     />
                     <button
@@ -738,8 +783,19 @@ export const QuickActionModal: React.FC = () => {
                       type="number"
                       min="0"
                       required
-                      value={physicalCount}
-                      onChange={(e) => setPhysicalCount(Math.max(0, parseInt(e.target.value) || 0))}
+                      value={physicalCount === 0 ? "0" : physicalCount || ""}
+                      onFocus={(e) => {
+                        if (e.target.value === "0") e.target.select();
+                      }}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "") {
+                          setPhysicalCount(0);
+                        } else {
+                          const parsed = parseInt(val, 10);
+                          setPhysicalCount(isNaN(parsed) ? 0 : Math.max(0, parsed));
+                        }
+                      }}
                       className="w-full px-3 py-2 text-center text-lg font-black bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg"
                     />
                   </div>

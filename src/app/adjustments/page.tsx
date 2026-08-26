@@ -255,8 +255,19 @@ export default function AdjustmentsPage() {
                   type="number"
                   min="0"
                   required
-                  value={physicalCount}
-                  onChange={(e) => setPhysicalCount(Math.max(0, parseInt(e.target.value) || 0))}
+                  value={physicalCount === 0 ? "0" : physicalCount || ""}
+                  onFocus={(e) => {
+                    if (e.target.value === "0") e.target.select();
+                  }}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "") {
+                      setPhysicalCount(0);
+                    } else {
+                      const parsed = parseInt(val, 10);
+                      setPhysicalCount(isNaN(parsed) ? 0 : Math.max(0, parsed));
+                    }
+                  }}
                   className="w-full px-3 py-1.5 text-2xl font-black bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-800 rounded-xl text-indigo-950 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                 />
               </div>

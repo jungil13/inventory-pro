@@ -312,6 +312,7 @@ export default function NewProductPage() {
                 min="0"
                 required
                 value={costPrice}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => setCostPrice(e.target.value)}
                 className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               />
@@ -327,6 +328,7 @@ export default function NewProductPage() {
                 min="0"
                 required
                 value={sellingPrice}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => setSellingPrice(e.target.value)}
                 className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               />
@@ -340,6 +342,7 @@ export default function NewProductPage() {
                 type="number"
                 min="0"
                 value={initialQuantity}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => setInitialQuantity(e.target.value)}
                 className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-bold"
               />
@@ -368,6 +371,7 @@ export default function NewProductPage() {
                 type="number"
                 min="1"
                 value={minimumStock}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => setMinimumStock(e.target.value)}
                 className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               />
@@ -381,6 +385,7 @@ export default function NewProductPage() {
                 type="number"
                 min="1"
                 value={maximumStock}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => setMaximumStock(e.target.value)}
                 className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               />

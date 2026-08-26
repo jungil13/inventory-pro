@@ -216,6 +216,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 step="0.01"
                 required
                 value={editCost}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => setEditCost(e.target.value)}
                 className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl"
               />
@@ -229,6 +230,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 step="0.01"
                 required
                 value={editPrice}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => setEditPrice(e.target.value)}
                 className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl"
               />
@@ -241,6 +243,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 type="number"
                 required
                 value={editMin}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => setEditMin(e.target.value)}
                 className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl"
               />
