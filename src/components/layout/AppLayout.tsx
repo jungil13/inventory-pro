@@ -96,7 +96,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       if (event === 'SIGNED_OUT' || !session) {
         inventoryStore.setCurrentUser(null);
         setCurrentUser(null);
-        router.push('/login');
+        window.location.href = '/login';
       } else if (event === 'SIGNED_IN' && session) {
         await inventoryStore.initFromSupabase();
         const allUsers = inventoryStore.getUsers();
@@ -142,7 +142,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const handleLogout = async () => {
     setIsUserMenuOpen(false);
     await supabase.auth.signOut();
-    // onAuthStateChange will handle the redirect
+    inventoryStore.setCurrentUser(null);
+    setCurrentUser(null);
+    window.location.href = '/login';
   };
 
   const handleQuickSearchSubmit = (e: React.FormEvent) => {
