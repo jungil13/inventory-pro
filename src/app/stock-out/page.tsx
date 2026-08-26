@@ -1,13 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { inventoryStore } from "@/lib/storage/inventory-store";
 import { formatCurrency, getStockStatus } from "@/lib/utils";
 import { soundFx } from "@/lib/audio/sound-fx";
 import { Product } from "@/types/inventory";
 import { BarcodeBadge } from "@/components/ui/BarcodeBadge";
-import { useScanner } from "@/components/scanner/USBScannerListener";
 import {
   ArrowUpFromLine,
   ScanLine,
@@ -22,8 +21,6 @@ import {
 
 export default function StockOutPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialProductId = searchParams.get("productId");
 
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -43,12 +40,12 @@ export default function StockOutPage() {
   } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const loadData = () => {
+  const loadData = (productId?: string | null) => {
     const prods = inventoryStore.getProducts();
     setProducts(prods);
 
-    if (initialProductId) {
-      const found = prods.find((p) => p.id === initialProductId);
+    if (productId) {
+      const found = prods.find((p) => p.id === productId);
       if (found) {
         setSelectedProduct(found);
         setReference(`SALES-2026-${Date.now().toString().slice(-4)}`);
@@ -57,10 +54,17 @@ export default function StockOutPage() {
   };
 
   useEffect(() => {
-    loadData();
-    const unsub = inventoryStore.subscribe(loadData);
+    // Read the optional productId only after the component mounts in the browser.
+    // This avoids useSearchParams() causing a Vercel/Next.js prerender error.
+    const params = new URLSearchParams(window.location.search);
+    const initialProductId = params.get("productId");
+
+    loadData(initialProductId);
+    const unsub = inventoryStore.subscribe(() => {
+      loadData(initialProductId);
+    });
     return () => unsub();
-  }, [initialProductId]);
+  }, []);
 
   const handleBarcodeSearch = (e: React.FormEvent) => {
     e.preventDefault();
