@@ -96,7 +96,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       if (event === 'SIGNED_OUT' || !session) {
         inventoryStore.setCurrentUser(null);
         setCurrentUser(null);
-        window.location.href = '/login';
+        if (pathname !== '/login') {
+          window.location.href = '/login';
+        }
       } else if (event === 'SIGNED_IN' && session) {
         await inventoryStore.initFromSupabase();
         const allUsers = inventoryStore.getUsers();
