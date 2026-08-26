@@ -51,6 +51,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
+  const [systemSettings, setSystemSettings] = useState<any>(inventoryStore.getSettings());
   const [isMounted, setIsMounted] = useState(false);
   const [lowStockCount, setLowStockCount] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -68,6 +69,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       setLowStockCount(metrics.low_stock_items + metrics.out_of_stock_items);
       setCurrentUser(inventoryStore.getCurrentUser());
       setUsers(inventoryStore.getUsers());
+      setSystemSettings(inventoryStore.getSettings());
     };
 
     // 1. Check existing session on mount
@@ -289,8 +291,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <span className="font-black text-lg tracking-tight bg-gradient-to-r from-red-600 via-rose-600 to-red-400 bg-clip-text text-transparent">
                 InventoryPro
               </span>
-              <span className="text-[10px] block font-mono text-slate-400 -mt-1 font-semibold uppercase tracking-wider">
-                Barcode System
+              <span className="text-[10px] block font-medium text-slate-500 dark:text-slate-400 -mt-0.5 truncate max-w-[140px]" title={systemSettings?.company_name || "Barcode System"}>
+                {systemSettings?.company_name || "Barcode System"}
               </span>
             </div>
           </Link>

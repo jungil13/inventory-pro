@@ -52,6 +52,7 @@ export default function DashboardPage() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [movements, setMovements] = useState<StockMovement[]>([]);
+  const [systemSettings, setSystemSettings] = useState<any>(inventoryStore.getSettings());
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -60,6 +61,7 @@ export default function DashboardPage() {
       setMetrics(inventoryStore.getDashboardMetrics());
       setProducts(inventoryStore.getProducts());
       setMovements(inventoryStore.getMovements(8));
+      setSystemSettings(inventoryStore.getSettings());
     };
 
     loadData();
@@ -105,6 +107,9 @@ export default function DashboardPage() {
       {/* Top Welcome Header & Quick Action Buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+          <div className="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-0.5">
+            {systemSettings?.company_name || "Enterprise Barcode System"}
+          </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
             Inventory Dashboard
           </h1>

@@ -798,10 +798,33 @@ class InventoryStore {
     return { ...this.settings };
   }
 
-  public updateSettings(newSettings: Partial<SystemSettings>) {
+  public async updateSettings(newSettings: Partial<SystemSettings>): Promise<{ success: boolean; error?: string }> {
     this.settings = { ...this.settings, ...newSettings };
     this.save();
-    supabase.from("system_settings").update(newSettings).match({ id: 1 }).then();
+    try {
+      const payload = {
+        id: 1,
+        company_name: this.settings.company_name,
+        currency: this.settings.currency,
+        allow_negative_stock: this.settings.allow_negative_stock,
+        low_stock_global_threshold: this.settings.low_stock_global_threshold,
+        beep_sound_enabled: this.settings.beep_sound_enabled,
+        beep_volume: this.settings.beep_volume,
+        scanner_debounce_ms: this.settings.scanner_debounce_ms,
+        updated_at: new Date().toISOString(),
+      };
+      const { error } = await supabase
+        .from("system_settings")
+        .upsert(payload, { onConflict: "id" });
+      if (error) {
+        console.error("Failed to update system_settings in Supabase:", error);
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    } catch (e: any) {
+      console.error("Supabase settings update error:", e);
+      return { success: false, error: e?.message || "Failed to update settings" };
+    }
   }
 
   public resetToDefaults() {

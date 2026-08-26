@@ -47,7 +47,7 @@ export default function RootLayout({
         <ScannerProvider>
           <AppLayout>{children}</AppLayout>
           <PwaInstallPrompt />
-          <Toaster richColors position="top-right" />
+          <Toaster richColors position="top-right" closeButton visibleToasts={3} duration={2500} />
         </ScannerProvider>
       </body>
     </html>

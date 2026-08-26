@@ -6,6 +6,7 @@ import { soundFx } from "@/lib/audio/sound-fx";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { SystemSettings } from "@/types/inventory";
 import { PwaDownloadButton } from "@/components/pwa/PwaInstallPrompt";
+import { toast } from "sonner";
 import {
   Settings as SettingsIcon,
   Save,
@@ -19,26 +20,45 @@ import {
   CheckCircle2,
   Smartphone,
   Download,
+  Loader2,
 } from "lucide-react";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<SystemSettings>(inventoryStore.getSettings());
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [supabaseConnected, setSupabaseConnected] = useState(false);
 
   useEffect(() => {
-    setSettings(inventoryStore.getSettings());
-    setSupabaseConnected(isSupabaseConfigured());
+    const load = () => {
+      setSettings(inventoryStore.getSettings());
+      setSupabaseConnected(isSupabaseConfigured());
+    };
+    load();
+    const unsub = inventoryStore.subscribe(load);
+    return () => unsub();
   }, []);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    inventoryStore.updateSettings(settings);
+    if (isSaving) return;
+    setIsSaving(true);
+    
     soundFx.setEnabled(settings.beep_sound_enabled);
     soundFx.setVolume(settings.beep_volume);
-    soundFx.playSuccessChime();
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 2000);
+
+    const res = await inventoryStore.updateSettings(settings);
+    setIsSaving(false);
+
+    if (res.success) {
+      soundFx.playSuccessChime();
+      setSavedSuccess(true);
+      toast.success("System settings updated & saved to database!");
+      setTimeout(() => setSavedSuccess(false), 3000);
+    } else {
+      soundFx.playErrorBuzz();
+      toast.error(res.error || "Failed to update settings in database");
+    }
   };
 
   const handleResetData = () => {
@@ -49,8 +69,10 @@ export default function SettingsPage() {
     ) {
       inventoryStore.resetToDefaults();
       soundFx.playSuccessChime();
-      alert("Inventory restored to initial factory seed state.");
-      window.location.reload();
+      toast.success("Inventory restored to initial factory seed state.");
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     }
   };
 
@@ -287,11 +309,11 @@ export default function SettingsPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
           <button
             type="button"
             onClick={handleResetData}
-            className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors"
+            className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors active:scale-95"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Reset Demo Seed Data</span>
@@ -299,10 +321,11 @@ export default function SettingsPage() {
 
           <button
             type="submit"
-            className="px-7 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/25 flex items-center gap-2 transition-all hover:scale-[1.02]"
+            disabled={isSaving}
+            className="w-full sm:w-auto px-7 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 transition-all active:scale-95"
           >
-            <Save className="w-4 h-4" />
-            <span>Save System Settings</span>
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            <span>{isSaving ? "Saving to Database..." : "Save System Settings"}</span>
           </button>
         </div>
       </form>
