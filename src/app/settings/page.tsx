@@ -5,6 +5,7 @@ import { inventoryStore } from "@/lib/storage/inventory-store";
 import { soundFx } from "@/lib/audio/sound-fx";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { SystemSettings } from "@/types/inventory";
+import { PwaDownloadButton } from "@/components/pwa/PwaInstallPrompt";
 import {
   Settings as SettingsIcon,
   Save,
@@ -16,6 +17,8 @@ import {
   Database,
   RotateCcw,
   CheckCircle2,
+  Smartphone,
+  Download,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -257,6 +260,30 @@ export default function SettingsPage() {
             <code className="font-mono bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in your environment.
             SQL migrations are available at <code className="font-mono bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">supabase/migrations/20260824000000_init_schema.sql</code>.
           </p>
+        </div>
+
+        {/* Progressive Web App / Offline Installation */}
+        <div className="p-5 sm:p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+          <h3 className="font-bold text-sm text-slate-900 dark:text-white pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+            <Smartphone className="w-4 h-4 text-red-500" />
+            Progressive Web App (PWA) & Offline Mode
+          </h3>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800">
+            <div>
+              <div className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-2">
+                <span>InventoryPro Standalone App</span>
+                <span className="px-2 py-0.5 text-[10px] font-extrabold bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400 rounded-full">
+                  PWA READY
+                </span>
+              </div>
+              <div className="text-[11px] text-slate-500 mt-1">
+                Install as a native desktop or mobile application for instant hardware barcode scanning, full-screen view, and offline caching.
+              </div>
+            </div>
+
+            <PwaDownloadButton className="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-xs font-bold rounded-xl shadow-md shadow-red-500/20 flex items-center gap-2 transition-all hover:scale-[1.02] flex-shrink-0" />
+          </div>
         </div>
 
         {/* Action Buttons */}

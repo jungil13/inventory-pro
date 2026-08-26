@@ -10,6 +10,7 @@ import { inventoryStore } from "@/lib/storage/inventory-store";
 import { supabase } from "@/lib/supabase/client";
 import { soundFx } from "@/lib/audio/sound-fx";
 import { User, UserRole } from "@/types/inventory";
+import { PwaDownloadButton } from "@/components/pwa/PwaInstallPrompt";
 import {
   LayoutDashboard,
   Package,
@@ -318,8 +319,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           ))}
         </div>
 
-        {/* USB Hardware status widget in sidebar footer */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+        {/* USB Hardware status widget and PWA Download in sidebar footer */}
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
+          <PwaDownloadButton className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 font-bold rounded-xl text-xs transition-colors shadow-xs" />
+
           <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200/80 dark:border-slate-800">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
@@ -371,6 +374,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
           {/* Right Header Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Install / Download App Quick Button */}
+            <PwaDownloadButton className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-all" />
+
             {/* Quick Scan Action Button */}
             <Link
               href="/scan"

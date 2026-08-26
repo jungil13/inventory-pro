@@ -3,6 +3,7 @@
   "short_name": "InventoryPro",
   "description": "Production-ready barcode inventory management system for scanning, stock-in, stock-out, and stock adjustments",
   "start_url": "/dashboard",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
@@ -20,5 +21,10 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "categories": [
+    "business",
+    "productivity",
+    "utilities"
   ]
 }
